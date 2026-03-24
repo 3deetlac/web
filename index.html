@@ -10,7 +10,7 @@
         :root {
             --bg: #030303;
             --primary: #00a2ff;
-            --secondary: #7000ff; /* Fialový akcent pre hĺbku */
+            --secondary: #7000ff;
             --text-main: #ffffff;
             --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
@@ -28,46 +28,51 @@
             justify-content: space-between;
         }
 
-        /* --- NOVÉ DIZAJNOVÉ POZADIE --- */
+        /* --- FIX POZADIA --- */
         .bg-container {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #030303 100%);
+            background: #030303;
+            overflow: hidden;
         }
 
-        /* Dynamické svetelné body (Mesh Gradient) */
+        /* Definujeme štartovacie pozície škvŕn, aby nebola tma */
         .blob {
             position: absolute;
-            width: 500px;
-            height: 500px;
+            width: 60vmax;
+            height: 60vmax;
             background: var(--primary);
-            filter: blur(120px);
+            filter: blur(100px);
             border-radius: 50%;
-            opacity: 0.15;
-            transition: transform 0.2s ease-out;
+            opacity: 0.2;
+            top: -10%;
+            left: -10%;
+            will-change: transform;
+            transition: transform 0.6s cubic-bezier(0.2, 0, 0.2, 1);
         }
 
         .blob.second {
             background: var(--secondary);
-            width: 400px;
-            height: 400px;
-            opacity: 0.1;
-            right: 10%;
-            top: 10%;
+            width: 50vmax;
+            height: 50vmax;
+            opacity: 0.15;
+            top: 60%;
+            right: -10%;
+            left: auto; /* zrušenie left z prvej triedy */
         }
 
-        /* Jemná mriežka pripomínajúca podložku tlačiarne */
         .grid {
             position: absolute;
             width: 200%; height: 200%;
             top: -50%; left: -50%;
             background-image: 
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            transform: rotateX(60deg) translateZ(-100px);
-            mask-image: radial-gradient(ellipse at center, black, transparent 70%);
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: rotateX(60deg);
+            mask-image: radial-gradient(ellipse at center, black, transparent 80%);
+            pointer-events: none;
         }
 
         /* --- OBSAH --- */
@@ -75,42 +80,42 @@
             flex: 1; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             text-align: center;
-            transform-style: preserve-3d;
-            perspective: 1000px;
+            z-index: 10;
+            padding: 20px;
         }
 
         .brand-name {
-            font-size: 14vw;
+            font-size: clamp(3rem, 15vw, 8rem); /* Lepšie prispôsobenie mobilom */
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: -0.05em;
             margin: 0;
-            background: linear-gradient(to bottom, #fff 40%, #888 100%);
+            background: linear-gradient(to bottom, #fff 50%, #888 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
         }
 
         .brand-sub {
-            font-size: 1.1em;
+            font-size: clamp(0.8rem, 3vw, 1.1rem);
             color: #888;
             letter-spacing: 0.2em;
-            margin-top: -10px;
+            margin-top: 5px;
             text-transform: lowercase;
         }
 
-        /* --- KONTAKTNÉ OKNO (GLASSMORPHISM) --- */
+        /* --- KONTAKTNÉ OKNO --- */
         .contact-footer {
             width: 90%;
             max-width: 400px;
             background: var(--glass);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 30px;
-            padding: 30px;
+            padding: 25px;
             margin-bottom: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            text-align: center;
+            z-index: 100;
         }
 
         .contact-title {
@@ -118,36 +123,35 @@
             letter-spacing: 0.3em;
             color: var(--primary);
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-transform: uppercase;
         }
 
         .phone-number {
-            font-size: 1.6em;
+            font-size: 1.5em;
             font-weight: 700;
             color: #fff;
             text-decoration: none;
             display: block;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .btn-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
         }
 
         .contact-btn {
-            padding: 14px;
-            border-radius: 15px;
+            padding: 12px;
+            border-radius: 12px;
             text-decoration: none;
-            font-size: 0.85em;
+            font-size: 0.8em;
             font-weight: 600;
             border: 1px solid var(--glass-border);
             color: #fff;
-            background: rgba(255,255,255,0.03);
-            transition: 0.3s;
-            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.05);
+            transition: 0.2s;
         }
 
         .btn-calc {
@@ -155,20 +159,19 @@
             background: var(--primary);
             color: #000;
             border: none;
+            margin-top: 5px;
         }
 
-        .contact-btn:hover {
-            background: rgba(255,255,255,0.1);
-            transform: translateY(-3px);
-        }
+        .contact-btn:active { transform: scale(0.95); }
+
     </style>
 </head>
 <body>
 
     <div class="bg-container">
         <div class="grid"></div>
-        <div class="blob" id="blob1"></div>
-        <div class="blob second" id="blob2"></div>
+        <div id="blob1" class="blob"></div>
+        <div id="blob2" class="blob second"></div>
     </div>
 
     <main class="main-hero" id="hero">
@@ -187,29 +190,47 @@
     </footer>
 
     <script>
-        // Jemný paralax efekt na pohyb myši
+        const hero = document.getElementById('hero');
+        const b1 = document.getElementById('blob1');
+        const b2 = document.getElementById('blob2');
+
+        // Funkcia pre pohyb prvkov
+        function move(x, y) {
+            // Paralax pre text
+            hero.style.transform = `translate(${x * 20}px, ${y * 20}px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg)`;
+            
+            // Pohyb farebných škvŕn
+            b1.style.transform = `translate(${x * 100}px, ${y * 100}px)`;
+            b2.style.transform = `translate(${x * -100}px, ${y * -100}px)`;
+        }
+
+        // 1. Myš (PC)
         document.addEventListener('mousemove', (e) => {
             const x = (e.clientX / window.innerWidth) - 0.5;
             const y = (e.clientY / window.innerHeight) - 0.5;
-
-            // Pohyb textu
-            document.getElementById('hero').style.transform = 
-                `rotateY(${x * 20}deg) rotateX(${-y * 20}deg) translateZ(50px)`;
-
-            // Pohyb svetelných škvŕn v pozadí
-            document.getElementById('blob1').style.transform = 
-                `translate(${x * 100}px, ${y * 100}px)`;
-            document.getElementById('blob2').style.transform = 
-                `translate(${x * -150}px, ${y * -150}px)`;
+            move(x, y);
         });
 
-        // Podpora pre nakláňanie mobilu (ak je dostupné)
+        // 2. Gyroskop (Mobil - nakláňanie)
         window.addEventListener('deviceorientation', (e) => {
-            const x = e.gamma / 45; // náklon do strán
-            const y = e.beta / 45;  // náklon dopredu/dozadu
-            document.getElementById('hero').style.transform = 
-                `rotateY(${x * 20}deg) rotateX(${-y * 20}deg) translateZ(50px)`;
+            if (!e.gamma) return;
+            const x = e.gamma / 45; 
+            const y = (e.beta - 45) / 45;
+            move(x, y);
         });
+
+        // 3. Automatická jemná animácia (aby to nebolo mŕtve, keď sa nič nehýbe)
+        let time = 0;
+        function animate() {
+            time += 0.01;
+            // Len ak nie je aktivovaný iný pohyb (veľmi jemné kmitanie)
+            const ax = Math.sin(time) * 0.05;
+            const ay = Math.cos(time) * 0.05;
+            // b1.style.filter = `blur(${100 + Math.sin(time) * 20}px)`; // jemné pulzovanie rozmazania
+            requestAnimationFrame(animate);
+        }
+        animate();
+
     </script>
 </body>
 </html>
