@@ -85,10 +85,10 @@
             transform: translateZ(60px);
         }
 
-        /* ODSKOK PRE DRUHÝ RIADOK */
+        /* ODSKOK O JEDNO PÍSMENO (cca 1.1em) */
         .indent {
             display: inline-block;
-            margin-left: 0.8em;
+            margin-left: 1.1em;
         }
 
         .brand-sub {
@@ -179,7 +179,8 @@
             }
             .phone { font-size: 1.3rem; }
             .contact-btn { padding: 14px; font-size: 0.8rem; }
-            .indent { margin-left: 0.6em; }
+            /* Na mobile o niečo menší odskok kvôli šírke displeja */
+            .indent { margin-left: 0.8em; }
         }
     </style>
 </head>
@@ -223,7 +224,7 @@
 
         // MOBILE GYROSCOPE CONTROL
         window.addEventListener('deviceorientation', (e) => {
-            if (e.gamma !== null) {
+            if (e.gamma !== null && window.innerWidth <= 600) {
                 let moveX = e.gamma / 40; 
                 let moveY = (e.beta - 45) / 40; 
 
