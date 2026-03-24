@@ -2,295 +2,214 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3Dee.tlac - Hobby 3D tlač Liptov</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3Dee.tlac - 3D tlač Liptov</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS PREMENNÉ A RESET --- */
         :root {
-            --bg: #050505; /* Hlboká čierna pre pozadie */
-            --card: #111111; /* Mierne svetlejšia pre kontaktné okno */
+            --bg: #030303;
+            --primary: #00a2ff;
+            --secondary: #7000ff; /* Fialový akcent pre hĺbku */
             --text-main: #ffffff;
-            --text-sub: #888888;
-            --primary: #00a2ff; /* Tvoja modrá */
-            --primary-dim: rgba(0, 162, 255, 0.1);
-            --border: #222222;
-            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
-        
-        body {
-            font-family: var(--font-stack);
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
-            height: 100vh;
-            overflow: hidden; /* Paralax efekt riešime cez JS a transformácie, nie scroll */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             align-items: center;
-            perspective: 1000px; /* Nutné pre 3D efekt */
+            justify-content: space-between;
         }
 
-        /* --- ABSTRAKTNÉ 3D POZADIE (VRSTVY TLAČE) --- */
-        .background-scene {
+        /* --- NOVÉ DIZAJNOVÉ POZADIE --- */
+        .bg-container {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            pointer-events: none;
-            transform-style: preserve-3d;
-            will-change: transform;
+            background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #030303 100%);
         }
 
-        /* Generujeme "vrstvy G-codu" pomocou CSS gradientov */
-        .bg-layer {
+        /* Dynamické svetelné body (Mesh Gradient) */
+        .blob {
             position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background-image: 
-                linear-gradient(var(--border) 1px, transparent 1px),
-                linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 50px 50px; /* Mriežka tlačovej podložky */
-            background-position: center;
-            opacity: 0.15;
-            transform: translateZ(-200px) rotateX(60deg);
-        }
-
-        .bg-glow {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 30vmax; height: 30vmax;
-            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            width: 500px;
+            height: 500px;
+            background: var(--primary);
+            filter: blur(120px);
             border-radius: 50%;
-            opacity: 0.1;
-            filter: blur(50px);
-            transform: translate(-50%, -50%) translateZ(-100px);
+            opacity: 0.15;
+            transition: transform 0.2s ease-out;
         }
 
-        /* --- HLAVNÝ OBSAH (STRED) --- */
+        .blob.second {
+            background: var(--secondary);
+            width: 400px;
+            height: 400px;
+            opacity: 0.1;
+            right: 10%;
+            top: 10%;
+        }
+
+        /* Jemná mriežka pripomínajúca podložku tlačiarne */
+        .grid {
+            position: absolute;
+            width: 200%; height: 200%;
+            top: -50%; left: -50%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform: rotateX(60deg) translateZ(-100px);
+            mask-image: radial-gradient(ellipse at center, black, transparent 70%);
+        }
+
+        /* --- OBSAH --- */
         .main-hero {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             text-align: center;
-            padding: 20px;
             transform-style: preserve-3d;
-            will-change: transform;
+            perspective: 1000px;
         }
 
         .brand-name {
-            font-size: 12vw; /* Responzívna veľkosť podľa šírky okna */
+            font-size: 14vw;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: -0.05em;
-            line-height: 0.9;
-            margin-bottom: 10px;
-            /* Jemný 3D tieň pre nápis */
-            text-shadow: 
-                0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb,
-                0 4px 0 #b9b9b9, 0 5px 0 #aaa, 
-                0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1),
-                0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2),
-                0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2),
-                0 20px 20px rgba(0,0,0,.15);
-            color: var(--text-main);
-            transform: translateZ(50px); /* Vystúpenie nápisu do popredia */
+            margin: 0;
+            background: linear-gradient(to bottom, #fff 40%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
         }
 
         .brand-sub {
-            font-size: 1em;
-            color: var(--text-sub);
-            font-weight: 400;
+            font-size: 1.1em;
+            color: #888;
+            letter-spacing: 0.2em;
+            margin-top: -10px;
             text-transform: lowercase;
-            letter-spacing: 0.1em;
-            transform: translateZ(30px); /* Mierne menej vystúpené ako hlavný nápis */
         }
 
-        /* --- KONTAKTNÁ ZÓNA (DOLE) --- */
+        /* --- KONTAKTNÉ OKNO (GLASSMORPHISM) --- */
         .contact-footer {
-            width: 100%;
-            max-width: 450px; /* Aby okno nebolo príliš široké na PC */
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px 20px 0 0; /* Zaoblené len horné rohy */
-            padding: 25px;
-            text-align: center;
-            backdrop-filter: blur(10px); /* Jemné rozostrenie pozadia pod oknom */
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
-            transform: translateZ(20px); /* Jemné vystúpenie */
+            width: 90%;
+            max-width: 400px;
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
         }
 
         .contact-title {
-            font-size: 0.75em;
+            font-size: 0.7em;
+            letter-spacing: 0.3em;
             color: var(--primary);
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
             margin-bottom: 15px;
+            text-transform: uppercase;
         }
 
         .phone-number {
-            font-size: 1.4em;
+            font-size: 1.6em;
             font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 20px;
-            display: block;
+            color: #fff;
             text-decoration: none;
+            display: block;
+            margin-bottom: 25px;
         }
 
         .btn-group {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-
-        /* Prepnutie na 2 stĺpce na širších mobiloch */
-        @media (min-width: 400px) {
-            .btn-group { grid-template-columns: 1fr 1fr; }
-            .btn-calc { grid-column: span 2; } /* Kalkulačka na celú šírku */
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
 
         .contact-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: #1a1a1a;
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 12px;
-            border-radius: 10px;
+            padding: 14px;
+            border-radius: 15px;
             text-decoration: none;
-            font-weight: 600;
             font-size: 0.85em;
-            transition: all 0.2s ease;
+            font-weight: 600;
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            background: rgba(255,255,255,0.03);
+            transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .contact-btn:active {
-            transform: scale(0.97); /* Efekt stlačenia na mobile */
-            background: #222;
+        .btn-calc {
+            grid-column: span 2;
+            background: var(--primary);
+            color: #000;
+            border: none;
         }
 
-        /* Špecifické farby pre tlačidlá */
-        .btn-wa { border-color: #25D366; color: #25D366; background: rgba(37, 211, 102, 0.05); }
-        .btn-ig { border-color: #E1306C; color: #E1306C; background: rgba(225, 48, 108, 0.05); }
-        .btn-calc { border-color: var(--primary); color: var(--primary); background: var(--primary-dim); margin-top: 5px;}
-
-        /* --- ODPOVEDNOSŤ NA MOBIL (DODATOČNÉ ÚPRAVY) --- */
-        @media (max-width: 600px) {
-            .brand-name { font-size: 16vw; } /* Ešte väčší nápis na výšku */
-            .brand-sub { font-size: 0.8em; }
-            .contact-footer { padding: 20px; width: 95%; margin: 0 auto; }
-            .phone-number { font-size: 1.2em; }
-        }
-
-        /* Zákaz paralax efektu pre užívateľov, ktorí preferujú obmedzený pohyb (prístupnosť) */
-        @media (prefers-reduced-motion: reduce) {
-            .background-scene, .main-hero, .brand-name, .brand-sub {
-                transform: none !important;
-                transition: none !important;
-            }
+        .contact-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-3px);
         }
     </style>
 </head>
 <body>
 
-    <div class="background-scene" id="bgScene">
-        <div class="bg-layer"></div>
-        <div class="bg-glow"></div>
+    <div class="bg-container">
+        <div class="grid"></div>
+        <div class="blob" id="blob1"></div>
+        <div class="blob second" id="blob2"></div>
     </div>
 
-    <main class="main-hero" id="heroContent">
+    <main class="main-hero" id="hero">
         <h1 class="brand-name">3Dee.tlac</h1>
         <p class="brand-sub">hobby zákazková 3d tlač na liptove</p>
     </main>
 
     <footer class="contact-footer">
-        <div class="contact-title">CONTACT ME:</div>
-        
+        <div class="contact-title">Contact me</div>
         <a href="tel:+421918266290" class="phone-number">0918 266 290</a>
-        
         <div class="btn-group">
-            <a href="https://wa.me/421918266290" target="_blank" class="contact-btn btn-wa">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.886.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                WhatsApp
-            </a>
-            <a href="https://www.instagram.com/3dee.tlac/" target="_blank" class="contact-btn btn-ig">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.85-.07-3.26-.149-4.771-1.699-4.919-4.919-.058-1.265-.069-1.646-.069-4.849 0-3.204.012-3.583.069-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                Instagram
-            </a>
-            <a href="LINK_NA_TVOJ_WEB_KALKULACIE.html" class="contact-btn btn-calc">
-                Kalkulačka ceny 3D tlače
-            </a>
+            <a href="https://wa.me/421918266290" class="contact-btn">WhatsApp</a>
+            <a href="https://instagram.com/3dee.tlac" class="contact-btn">Instagram</a>
+            <a href="kalkulacka.html" class="contact-btn btn-calc">Kalkulačka ceny tlače</a>
         </div>
     </footer>
 
     <script>
-        const body = document.body;
-        const bgScene = document.getElementById('bgScene');
-        const heroContent = document.getElementById('heroContent');
+        // Jemný paralax efekt na pohyb myši
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            const y = (e.clientY / window.innerHeight) - 0.5;
 
-        // Intenzita pohybu (čím menšie číslo, tým jemnejší pohyb)
-        const intensityBg = 20; 
-        const intensityHero = 10;
+            // Pohyb textu
+            document.getElementById('hero').style.transform = 
+                `rotateY(${x * 20}deg) rotateX(${-y * 20}deg) translateZ(50px)`;
 
-        // Funkcia pre výpočet a aplikáciu 3D transformácie
-        function applyParallax(e) {
-            // Získame pozíciu kurzora/prsta relatívne k stredu obrazovky
-            const x = e.clientX || (e.touches && e.touches[0].clientX);
-            const y = e.clientY || (e.touches && e.touches[0].clientY);
+            // Pohyb svetelných škvŕn v pozadí
+            document.getElementById('blob1').style.transform = 
+                `translate(${x * 100}px, ${y * 100}px)`;
+            document.getElementById('blob2').style.transform = 
+                `translate(${x * -150}px, ${y * -150}px)`;
+        });
 
-            if (!x || !y) return; // Ochrana ak dáta chýbajú
-
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-
-            // Výpočet odchýlky od stredu (-1 až 1)
-            const moveX = (x - centerX) / centerX;
-            const moveY = (y - centerY) / centerY;
-
-            // Aplikácia rotácie pre pozadie (jemný náklon)
-            const rotateXBg = moveY * intensityBg;
-            const rotateYBg = -moveX * intensityBg;
-            // Presunieme pozadie jemne do opačnej strany ako myš pre pocit hĺbky
-            bgScene.style.transform = `translateX(${moveX * -30}px) translateY(${moveY * -30}px) rotateX(${rotateXBg}deg) rotateY(${rotateYBg}deg)`;
-
-            // Aplikácia rotácie a mierneho posunu pre hlavný obsah
-            const rotateXHero = moveY * intensityHero;
-            const rotateYHero = -moveX * intensityHero;
-            heroContent.style.transform = `rotateX(${rotateXHero}deg) rotateY(${rotateYHero}deg) translateX(${moveX * 10}px) translateY(${moveY * 10}px)`;
-        }
-
-        // --- EVENT LISTENERS (POHYB) ---
-        
-        // Pre PC (pohyb myšou)
-        window.addEventListener('mousemove', applyParallax);
-
-        // Pre Mobily (pohyb prstom / gyroskop - volíme prst pre lepšiu kontrolu)
-        // Gyroskop (deviceorientation) často vyžaduje HTTPS a povolenie od užívateľa,
-        // preto je dotyk (touchmove) spoľahlivejší pre basic verziu.
-        window.addEventListener('touchmove', applyParallax);
-        
-        // Reset pozície pri odchode myšou/konci dotyku
-        function resetPosition() {
-            bgScene.style.transform = `translateX(0) translateY(0) rotateX(0) rotateY(0)`;
-            heroContent.style.transform = `rotateX(0) rotateY(0) translateX(0) translateY(0)`;
-        }
-
-        window.addEventListener('mouseleave', resetPosition);
-        window.addEventListener('touchend', resetPosition);
-
-        // Zamedzenie scrollovania na mobile pri pohybe prstom
-        window.addEventListener('touchmove', function(e) {
-            e.preventDefault();
-        }, { passive: false });
-
+        // Podpora pre nakláňanie mobilu (ak je dostupné)
+        window.addEventListener('deviceorientation', (e) => {
+            const x = e.gamma / 45; // náklon do strán
+            const y = e.beta / 45;  // náklon dopredu/dozadu
+            document.getElementById('hero').style.transform = 
+                `rotateY(${x * 20}deg) rotateX(${-y * 20}deg) translateZ(50px)`;
+        });
     </script>
 </body>
 </html>
