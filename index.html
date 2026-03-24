@@ -8,121 +8,86 @@
 
     <style>
         :root {
-            --bg: #050505;
             --primary: #00a2ff;
             --secondary: #7000ff;
-            --text-main: #ffffff;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
+        /* --- MAXIMÁLNE KOMPATIBILNÉ POZADIE --- */
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            overflow: hidden;
+            background-color: #050505;
+            /* Tri vrstvy farieb, ktoré sa prelínajú - toto uvidí každý */
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(0, 162, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(112, 0, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, #0a0a0a 0%, #050505 100%);
+            background-attachment: fixed;
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-        }
-
-        /* --- GARANTOVANÉ FAREBNÉ POZADIE --- */
-        .bg-wrapper {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            background: #050505;
             overflow: hidden;
         }
 
-        /* Modrá hmlovina - Animovaná pomocou čistého CSS */
-        .blob-1 {
-            position: absolute;
-            top: -10%;
-            left: -10%;
-            width: 70vmax;
-            height: 70vmax;
-            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
-            opacity: 0.3;
-            filter: blur(80px);
-            animation: move-1 20s infinite alternate ease-in-out;
-        }
-
-        /* Fialová hmlovina */
-        .blob-2 {
-            position: absolute;
-            bottom: -10%;
-            right: -10%;
-            width: 60vmax;
-            height: 60vmax;
-            background: radial-gradient(circle, var(--secondary) 0%, transparent 70%);
-            opacity: 0.2;
-            filter: blur(80px);
-            animation: move-2 25s infinite alternate ease-in-out;
-        }
-
-        /* CSS Animácie pre pohyb škvŕn */
-        @keyframes move-1 {
-            from { transform: translate(0, 0) scale(1); }
-            to { transform: translate(15%, 10%) scale(1.1); }
-        }
-        @keyframes move-2 {
-            from { transform: translate(0, 0) scale(1); }
-            to { transform: translate(-15%, -10%) scale(1.2); }
-        }
-
-        .grid-overlay {
-            position: absolute;
-            width: 200%; height: 200%;
-            top: -50%; left: -50%;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-            background-size: 50px 50px;
-            transform: rotateX(60deg);
-            mask-image: radial-gradient(circle, black 30%, transparent 70%);
+        /* Jemná mriežka ako samostatná vrstva */
+        .grid {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 1;
+            pointer-events: none;
         }
 
         /* --- OBSAH --- */
         .main-hero {
-            flex: 1; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             z-index: 10;
+            text-align: center;
         }
 
         .brand-name {
-            font-size: clamp(3rem, 14vw, 8.5rem);
+            font-size: clamp(3.5rem, 15vw, 8rem);
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: -0.05em;
             margin: 0;
-            color: white;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            /* Strieborný efekt */
+            background: linear-gradient(to bottom, #ffffff 50%, #aaaaaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .brand-sub {
-            font-size: clamp(0.7rem, 2.5vw, 1rem);
-            color: #aaa;
-            letter-spacing: 0.3em;
+            font-size: 0.9rem;
+            color: #888;
+            letter-spacing: 0.25em;
             text-transform: uppercase;
             margin-top: 10px;
         }
 
-        /* --- KONTAKTNÉ OKNO --- */
+        /* --- KONTAKTNÁ KARTA --- */
         .contact-card {
             width: 90%;
-            max-width: 400px;
-            background: rgba(15, 15, 15, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 25px;
-            padding: 25px;
-            margin-bottom: 40px;
+            max-width: 380px;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 30px;
             text-align: center;
             z-index: 20;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
         .contact-title {
@@ -131,11 +96,11 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.2em;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .phone {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: #fff;
             text-decoration: none;
@@ -150,15 +115,15 @@
         }
 
         .btn {
-            padding: 14px;
+            padding: 12px;
             border-radius: 12px;
             text-decoration: none;
             font-size: 0.8rem;
             font-weight: 600;
-            background: rgba(255,255,255,0.05);
+            background: #1a1a1a;
             color: white;
-            border: 1px solid var(--glass-border);
-            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.2s;
         }
 
         .btn-main {
@@ -169,18 +134,13 @@
         }
 
         .btn:active { transform: scale(0.95); }
-
     </style>
 </head>
 <body>
 
-    <div class="bg-wrapper">
-        <div class="blob-1"></div>
-        <div class="blob-2"></div>
-        <div class="grid-overlay"></div>
-    </div>
+    <div class="grid"></div>
 
-    <main class="main-hero" id="parallax-content">
+    <main class="main-hero" id="hero">
         <h1 class="brand-name">3Dee.tlac</h1>
         <p class="brand-sub">hobby zákazková 3d tlač na liptove</p>
     </main>
@@ -196,12 +156,11 @@
     </footer>
 
     <script>
-        // Len jemný paralax pre text, pozadie už beží samo cez CSS
+        // Úplne jednoduchý paralax bez rizika čiernej obrazovky
         document.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth) - 0.5;
-            const y = (e.clientY / window.innerHeight) - 0.5;
-            const content = document.getElementById('parallax-content');
-            content.style.transform = `translate(${x * 30}px, ${y * 30}px) rotateY(${x * 15}deg) rotateX(${-y * 15}deg)`;
+            const x = (e.clientX / window.innerWidth - 0.5) * 20;
+            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+            document.getElementById('hero').style.transform = `translate(${x}px, ${y}px)`;
         });
     </script>
 </body>
