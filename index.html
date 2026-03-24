@@ -1,177 +1,242 @@
 <!DOCTYPE html>
-
 <html lang="sk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3Dee.tlac - 3D tlač Liptov</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3Dee.tlac - Hobby 3D tlač Liptov</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
-<style>
-    :root {
-        --primary: #00e1ff; /* Jasnejšia a kontrastnejšia modrá */
-        --secondary: #bd00ff; /* Jasnejšia a farebnejšia fialová */
-        --bg: #030303;
-    }
+    <style>
+        /* --- CSS PREMENNÉ A RESET --- */
+        :root {
+            --bg-center: #000000; /* Úplná čierna pre maximálny kontrast */
+            --bg-edge: #050505; /* Veľmi tmavý okraj */
+            --text-main: #ffffff;
+            --text-sub: #777777; /* Tmavšia sivá pre väčší minimalizmus */
+            --primary: #00e1ff; /* Jasnejšia neónová modrá */
+            --primary-dim: rgba(0, 225, 255, 0.15); /* Sýtejšia žiara */
+            --secondary: #bd00ff; /* Jasnejšia neónová fialová */
+            --border: rgba(255, 255, 255, 0.05); /* Jemnejší okraj */
+            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-    /* --- MAXIMÁLNE KOMPATIBILNÉ, ALE FAREBNEJŠIE POZADIE --- */
-    body {
-        margin: 0;
-        padding: 0;
-        width: 100vw;
-        height: 100vh;
-        font-family: 'Inter', sans-serif;
-        background-color: var(--bg);
-        /* Zvýšený kontrast a sýtosť pre farby v rohoch */
-        background-image: 
-            radial-gradient(circle at 10% 10%, rgba(0, 225, 255, 0.25) 0%, transparent 60%),
-            radial-gradient(circle at 90% 90%, rgba(189, 0, 255, 0.25) 0%, transparent 60%),
-            radial-gradient(circle at 50% 50%, #0c0c0c 0%, #030303 100%);
-        background-attachment: fixed;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-        overflow: hidden;
-    }
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-center);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden; /* Paralax efekt cez JS */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            perspective: 1000px; /* Pre 3D efekt */
+            
+            /* MAXIMÁLNE KONTRASTNÉ A FAREBNEJŠIE POZADIE */
+            background-image: 
+                radial-gradient(circle at 5% 5%, rgba(0, 225, 255, 0.35) 0%, transparent 50%), /* Sýtejšia modrá */
+                radial-gradient(circle at 95% 95%, rgba(189, 0, 255, 0.35) 0%, transparent 50%), /* Sýtejšia fialová */
+                radial-gradient(circle at 50% 50%, var(--bg-edge) 0%, var(--bg-center) 100%);
+            background-attachment: fixed;
+        }
 
-    /* Jemná, nenápadná mriežka */
-    .grid {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-        background-size: 50px 50px;
-        z-index: 1;
-        pointer-events: none;
-    }
+        /* Jemná technická mriežka */
+        .grid-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.5;
+        }
 
-    /* --- STREDNÝ OBSAH S PRIESTOROM --- */
-    .main-hero {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 10;
-        text-align: center;
-        padding: 50px 20px; /* Viac priestoru okolo nápisu */
-    }
+        /* --- HLAVNÝ OBSAH (STRED) --- */
+        .main-hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 100px 20px; /* VÄČŠÍ PRIESTOR A MINIMALIZMUS */
+            transform-style: preserve-3d;
+            will-change: transform;
+            z-index: 10;
+        }
 
-    .brand-name {
-        font-size: clamp(3rem, 12vw, 7rem); /* Mierne menší nápis pre minimalizmus */
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: -0.05em;
-        margin: 0;
-        /* SKLENÝ EFEKT NA TEXTE */
-        background: linear-gradient(to bottom, #ffffff 40%, #aaaaaa 80%, #ffffff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        /* Jemná žiara pre hĺbku */
-        text-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
-    }
+        .brand-name {
+            font-size: clamp(2.5rem, 10vw, 6rem); /* MIEKKO MENŠÍ PRE MINIMALIZMUS */
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+            line-height: 0.9;
+            margin-bottom: 15px;
+            
+            /* SKLENÝ EFEKT NA TEXTE */
+            background: linear-gradient(135deg, rgba(255,255,255,1) 30%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,1) 70%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            /* Jemná biela žiara pre hĺbku */
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+            
+            transform: translateZ(50px);
+        }
 
-    .brand-sub {
-        font-size: 0.85rem;
-        color: #999;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        margin-top: 15px; /* Viac priestoru */
-    }
+        .brand-sub {
+            font-size: 0.8rem; /* MENŠÍ PODNADPIS */
+            color: var(--text-sub);
+            font-weight: 400;
+            text-transform: uppercase; /* ZMENA NA VEĽKÉ PRE ČISTOTU */
+            letter-spacing: 0.3em; /* VÄČŠIE ROZOSTUPY */
+            transform: translateZ(30px);
+        }
 
-    /* --- KONTAKTNÁ ZÓNA NA JEDNOM RIADKU --- */
-    .contact-footer {
-        width: 100%;
-        background: rgba(10, 10, 10, 0.6);
-        backdrop-filter: blur(10px);
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 20px 0;
-        z-index: 20;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 20px; /* Priestor medzi prvkami */
-        flex-wrap: wrap; /* Zabezpečí zalomenie na veľmi úzkych obrazovkách */
-    }
+        /* --- KONTAKTNÁ LIŠTA (DOLE, JEDEN RIADOK) --- */
+        .contact-footer {
+            width: 100%;
+            background: rgba(10, 10, 10, 0.4); /* Ultratenké tmavé pozadie */
+            backdrop-filter: blur(15px); /* Sklený efekt rozostrenia */
+            -webkit-backdrop-filter: blur(15px);
+            border-top: 1px solid var(--border);
+            padding: 15px 0; /* Kompaktnejší padding */
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px; /* MENŠIE MEDZERY PRE KOMPAKTNOSŤ */
+            flex-wrap: nowrap; /* VŠETKO V JEDNOM RIADKU */
+        }
 
-    .contact-title {
-        font-size: 0.7rem;
-        color: var(--primary);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.25em;
-        margin-right: 10px;
-    }
+        .contact-title {
+            font-size: 0.7rem;
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            margin-right: 5px; /* Kompaktný priestor */
+        }
 
-    .phone {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #fff;
-        text-decoration: none;
-    }
+        .phone {
+            font-size: 0.95rem; /* MENŠÍ TELEFÓN */
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            margin-right: 10px; /* Kompaktný priestor */
+        }
 
-    .btn {
-        padding: 8px 16px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-size: 0.8rem;
-        font-weight: 600;
-        background: rgba(255, 255, 255, 0.05);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        transition: 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+        .btn {
+            padding: 6px 14px; /* MENŠIE TLAČIDLÁ */
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.75rem; /* MENŠÍ FONT */
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.03); /* Minimálne viditeľné pozadie */
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            transition: 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    /* Kalkulačka s modrým nádychom pre kontrast */
-    .btn-main {
-        background: rgba(0, 225, 255, 0.15);
-        color: var(--primary);
-        border-color: rgba(0, 225, 255, 0.2);
-    }
+        .btn:hover, .btn:active {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
 
-    .btn:active {
-        transform: scale(0.96);
-    }
+        /* Kalkulačka s jemným modrým nádychom */
+        .btn-calc {
+            background: rgba(0, 225, 255, 0.1);
+            color: var(--primary);
+            border-color: rgba(0, 225, 255, 0.2);
+        }
 
-    /* Responzívnosť pre mobily */
-    @media (max-width: 600px) {
-        .main-hero { padding: 30px 15px; }
-        .contact-footer { gap: 10px; padding: 15px; justify-content: space-around; }
-        .contact-title { display: none; } /* Na mobile skryjeme názov sekcie pre miesto */
-        .phone { font-size: 1rem; }
-        .btn { font-size: 0.75rem; padding: 8px 12px; }
-    }
-</style>
+        .btn-calc:hover, .btn-calc:active {
+            background: rgba(0, 225, 255, 0.15);
+            border-color: rgba(0, 225, 255, 0.3);
+        }
+
+        /* --- ODPOVEDNOSŤ NA MOBIL (MAXIMÁLNE KOMPAKTNÉ) --- */
+        @media (max-width: 600px) {
+            .main-hero { padding: 50px 15px; } /* MENEJ PRIESTORU NA VÝŠKU PRE MOBIL */
+            .brand-name { font-size: 16vw; } /* VÄČŠÍ NÁPIS NA VÝŠKU MOBILU */
+            .brand-sub { font-size: 0.7rem; letter-spacing: 0.25em; }
+
+            .contact-footer {
+                gap: 8px; /* MINIMÁLNE MEDZERY */
+                padding: 12px 5px; /* KONTRAKTNEJŠÍ PADDING */
+                justify-content: space-around; /* ROZLOŽENIE CEZ ŠÍRKU NA JEDNOM RIADKU */
+            }
+            .contact-title { display: none; } /* SKRYŤ NÁZOV SEKCE PRE MIESTO */
+            .phone { font-size: 0.8rem; margin-right: 0; }
+            .btn { font-size: 0.65rem; padding: 5px 8px; } /* ULTRASMALL TLAČIDLÁ */
+        }
+    </style>
 </head>
 <body>
 
-<div class="grid"></div>
+    <div class="grid-overlay"></div>
 
-<main class="main-hero" id="hero">
-    <h1 class="brand-name">3Dee.tlač</h1>
-    <p class="brand-sub">hobby zákazková 3d tlač na liptove</p>
-</main>
+    <main class="main-hero" id="hero">
+        <h1 class="brand-name">3Dee.tlac</h1>
+        <p class="brand-sub">hobby zákazková 3d tlač na liptove</p>
+    </main>
 
-<footer class="contact-footer">
-    <div class="contact-title">KONTAKT:</div>
-    <a href="tel:+421918266290" class="phone">0918 266 290</a>
-    <a href="https://wa.me/421918266290" target="_blank" class="btn">WhatsApp</a>
-    <a href="https://instagram.com/3dee.tlac" target="_blank" class="btn">Instagram</a>
-    <a href="https://3deetlac.github.io/calc/" class="btn btn-main">Kalkulačka</a>
-</footer>
+    <footer class="contact-footer">
+        <span class="contact-title">KONTAKT ME:</span>
+        
+        <a href="tel:+421918266290" class="phone">0918 266 290</a>
+        
+        <a href="https://wa.me/421918266290" target="_blank" class="btn">WhatsApp</a>
+        <a href="https://instagram.com/3dee.tlac" target="_blank" class="btn">Instagram</a>
+        <a href="https://3deetlac.github.io/calc/" target="_blank" class="btn btn-calc">Kalkulačka</a>
+    </footer>
 
-<script>
-    // Minimalistický paralax bez rizika
-    document.addEventListener('mousemove', (e) => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 15;
-        const y = (e.clientY / window.innerHeight - 0.5) * 15;
-        document.getElementById('hero').style.transform = `translate(${x}px, ${y}px)`;
-    });
-</script>
+    <script>
+        const hero = document.getElementById('hero');
+
+        // Intenzita pohybu (čím menšie číslo, tým jemnejší pohyb pre minimalizmus)
+        const intensity = 10; 
+
+        // Funkcia pre výpočet a aplikáciu 3D transformácie
+        function applyParallax(e) {
+            // Získame pozíciu kurzora/prsta relatívne k stredu obrazovky
+            const x = e.clientX || (e.touches && e.touches[0].clientX);
+            const y = e.clientY || (e.touches && e.touches[0].clientY);
+
+            if (!x || !y) return; 
+
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            // Výpočet odchýlky od stredu (-1 až 1)
+            const moveX = (x - centerX) / centerX;
+            const moveY = (y - centerY) / centerY;
+
+            // Aplikácia rotácie a mierneho posunu len pre text
+            const rotateX = moveY * intensity;
+            const rotateY = -moveX * intensity;
+            hero.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateX(${moveX * 5}px) translateY(${moveY * 5}px)`;
+        }
+
+        // --- EVENT LISTENERS (POHYB) ---
+        window.addEventListener('mousemove', applyParallax);
+        window.addEventListener('touchmove', applyParallax);
+        
+        // Reset pozície
+        function resetPosition() {
+            hero.style.transform = `rotateX(0) rotateY(0) translateX(0) translateY(0)`;
+        }
+
+        window.addEventListener('mouseleave', resetPosition);
+        window.addEventListener('touchend', resetPosition);
+    </script>
 </body>
 </html>
