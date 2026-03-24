@@ -36,7 +36,6 @@
             justify-content: space-between;
             perspective: 1000px;
             
-            /* ULTRA KONTRASTNÉ NEÓNOVÉ POZADIE */
             background-image: 
                 radial-gradient(circle at 5% 5%, rgba(0, 225, 255, 0.4) 0%, transparent 55%),
                 radial-gradient(circle at 95% 95%, rgba(189, 0, 255, 0.4) 0%, transparent 55%),
@@ -66,6 +65,7 @@
             transform-style: preserve-3d;
             will-change: transform;
             z-index: 10;
+            width: 100%; /* Zabezpečí stredovú os */
         }
 
         .brand-name {
@@ -75,20 +75,24 @@
             letter-spacing: -0.05em;
             line-height: 0.85;
             margin-bottom: 20px;
+            display: inline-block;
+            text-align: left; /* Zarovnanie textu v bloku doľava kvôli indentu */
             
-            /* SKLENÝ EFEKT */
             background: linear-gradient(135deg, rgba(255,255,255,1) 30%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,1) 70%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 0 15px rgba(255,255,255,0.2));
             
             transform: translateZ(60px);
+            /* Korekcia centrovania celého bloku nápisu */
+            position: relative;
+            left: -0.4em; 
         }
 
-        /* ODSKOK O JEDNO PÍSMENO (cca 1.1em) */
+        /* ODSKOK O VIAC AKO JEDNO PÍSMENO */
         .indent {
             display: inline-block;
-            margin-left: 1.1em;
+            margin-left: 1.5em;
         }
 
         .brand-sub {
@@ -98,6 +102,7 @@
             text-transform: uppercase;
             letter-spacing: 0.35em;
             transform: translateZ(30px);
+            width: 100%;
         }
 
         .contact-card {
@@ -169,18 +174,16 @@
             margin-top: 5px;
         }
 
-        /* RESPONZIVITA PRE MOBIL */
         @media (max-width: 600px) {
-            .brand-name { font-size: 16vw; }
+            .brand-name { font-size: 16vw; left: -0.3em; }
             .contact-card {
                 width: 92%;
-                margin-bottom: 80px; /* VYŠŠIE PRE SAFE ZONE */
+                margin-bottom: 80px; 
                 padding: 20px;
             }
             .phone { font-size: 1.3rem; }
             .contact-btn { padding: 14px; font-size: 0.8rem; }
-            /* Na mobile o niečo menší odskok kvôli šírke displeja */
-            .indent { margin-left: 0.8em; }
+            .indent { margin-left: 1.2em; }
         }
     </style>
 </head>
@@ -189,8 +192,10 @@
     <div class="grid-overlay"></div>
 
     <main class="main-hero" id="hero">
-        <h1 class="brand-name">3DEE.<br><span class="indent">TLAČ</span></h1>
-        <p class="brand-sub">hobby zákazková 3d tlač na liptove</p>
+        <div>
+            <h1 class="brand-name">3DEE.<br><span class="indent">TLAČ</span></h1>
+            <p class="brand-sub">hobby zákazková 3d tlač na liptove</p>
+        </div>
     </main>
 
     <footer class="contact-card">
@@ -213,7 +218,6 @@
             hero.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateX(${xValue * 6}px) translateY(${yValue * 6}px)`;
         }
 
-        // PC MOUSE CONTROL
         document.addEventListener('mousemove', (e) => {
             if (window.innerWidth > 600) {
                 const moveX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
@@ -222,15 +226,12 @@
             }
         });
 
-        // MOBILE GYROSCOPE CONTROL
         window.addEventListener('deviceorientation', (e) => {
             if (e.gamma !== null && window.innerWidth <= 600) {
                 let moveX = e.gamma / 40; 
                 let moveY = (e.beta - 45) / 40; 
-
                 moveX = Math.max(-1, Math.min(1, moveX));
                 moveY = Math.max(-1, Math.min(1, moveY));
-
                 applyParallax(moveX, moveY);
             }
         });
@@ -238,7 +239,6 @@
         function resetPosition() {
             hero.style.transform = `rotateX(0) rotateY(0) translateX(0) translateY(0)`;
         }
-
         window.addEventListener('mouseleave', resetPosition);
         window.addEventListener('touchend', resetPosition);
     </script>
